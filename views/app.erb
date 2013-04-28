@@ -5,8 +5,39 @@
     <meta name="viewport" content="width=device-width" />
     <title>Octo Marshal</title>
     <%= stylesheet_tag "app", expand: settings.development? %>
+    <%= Rack::Csrf.metatag(env) %>
   </head>
-  <body class="app">
+  <body class="app antialiased">
+    <nav class="top-bar">
+      <ul class="title-area">
+        <li class="name">
+          <h1><a href="#">Octo Marshal</a></h1>
+        </li>
+      </ul>
+      <section class="top-bar-section">
+        <ul class="right">
+          <li class="divider"></li>
+          <li class="has-form orgs-selector-container">
+            <a href="#">Organizations (Loading)</a>
+          </li>
+          <li class="divider"></li>
+          <li class="has-form">
+            <a href="#" class="button log-out">Log Out</a>
+          </li>
+        </ul>
+      </section>
+    </nav>
+    <div class="org-container row">
+      <div class"large-8 columns">
+        <div class="repo-list-container">
+          
+        </div>
+      </div>
+      <div class"large-4 columns">
+        <ul class="members-container">
+        </ul>
+      </div>
+    </div>
     <%= javascript_tag "app", expand: settings.development? %>
   </body>
 </html>

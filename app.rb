@@ -8,7 +8,7 @@ require "sinatra/reloader"
 root = File.dirname(__FILE__)
 
 # require everything in lib folder
-Dir[File.join(root, "lib" "**", "*.rb")].each(&method(:require))
+Dir[File.join(root, "lib", "**", "*.rb")].each(&method(:require))
 
 # set env variables from env.yml
 envfile = File.join(root, "config", "env.yml")
@@ -41,13 +41,14 @@ module Octomarshal
     helpers do
       include Sprockets::Helpers
 
-      def github_client(params = {})
+      # github client
+      def gh(params = {})
         params[:user] ||= session[:user]
         params[:oauth_token] ||= session[:token]
 
-        Github.new({
-          :client_id      => ENV['GITHUB_CLIENT_ID'],
-          :client_secret  => ENV['GITHUB_CLIENT_SECRET'],
+        GithubAPI.new({
+          client_id:       ENV['GITHUB_CLIENT_ID'],
+          client_secret:   ENV['GITHUB_CLIENT_SECRET'],
         }.merge(params))
       end
 
@@ -57,28 +58,35 @@ module Octomarshal
     end
 
     get "/" do
-      erb  authorized? ? :app : login
+      erb  authorized? ? :app : :login
     end
 
     get "/login" do
-      redirect github_client.authorize_url(scope: 'repo')
+      redirect gh.client.authorize_url(scope: 'repo')
     end
 
     get "/auth/callback" do
       # TODO: handle failure
-      token = github_client.get_token(params[:code]).token
-      github = github_client(oauth_token: token)
+      token = gh.client.get_token(params[:code]).token
+      github = gh.client(oauth_token: token)
       user = github.users.get
 
       session[:user] = user.login
-      session[:token] = github.oauth_token
+      session[:token] = token
+
+      # $redis.set "users:#{user.login}", token
 
       redirect "/"
     end
 
     post "/logout" do
       session[:user] = session[:token] = nil
-      redirect "/"
+
+      if request.xhr?
+        json status: true, location: "/"
+      else
+        redirect "/"
+      end
     end
 
     namespace "/api" do
@@ -86,8 +94,15 @@ module Octomarshal
         halt 403, "Not authorized" unless authorized?
       end
 
-      get "/" do
-        json({a: 1})
+      # get user's organizations
+      get "/orgs" do
+        # TODO: filter by whether user is an owner
+        # TODO: return only required attributes
+        json gh.orgs
+      end
+
+      get "/orgs/:org/repos" do
+        json gh.repos(params[:org])
       end
     end
   end
