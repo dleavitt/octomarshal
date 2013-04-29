@@ -11,4 +11,4 @@ class App.Views.OrgSelector extends Backbone.View
 
   onChange: ->
     org = @$el.val()
-    @goto("/orgs/#{org}") if org isnt ""
+    @goto("#{org}") if org isnt ""

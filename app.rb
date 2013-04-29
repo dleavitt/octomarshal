@@ -67,8 +67,9 @@ module Octomarshal
 
     get "/auth/callback" do
       # TODO: handle failure
+
       token = gh.client.get_token(params[:code]).token
-      github = gh.client(oauth_token: token)
+      github = gh(oauth_token: token).client
       user = github.users.get
 
       session[:user] = user.login
@@ -103,6 +104,15 @@ module Octomarshal
 
       get "/orgs/:org/repos" do
         json gh.repos(params[:org])
+      end
+
+      get "/orgs/:org/users" do
+        # TODO: allow for manual input of user info, mash this up with that
+        json gh.org_users(params[:org])
+      end
+
+      get "/orgs/:org/teams" do
+        json gh.org_teams(params[:org])
       end
     end
   end

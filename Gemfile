@@ -12,7 +12,7 @@ gem "rack-protection"
 
 gem "redis"
 gem "redis-namespace-with-multi", require: "redis/namespace"
-gem "redis-rack"
+gem "redis-rack", "> 1.0"
 
 gem "sprockets"
 gem "sprockets-helpers"
@@ -24,6 +24,8 @@ gem 'zurb-foundation'
 gem 'handlebars_assets'
 
 gem "github_api"
+
+gem "yajl-ruby", require: "yajl"
 
 # gem "bootstrap-sass", require: false
 

@@ -1,12 +1,11 @@
 class App.Router extends Backbone.Router
   routes:
-    '': 'main'
-    'orgs/:org': 'org'
+    '':            'main'
+    ':org':        'org'
+    ':org/:repo':  'repo'
 
   initialize: ->
     @main = new App.Views.Main
 
-  org: (orgName) ->
-    @main.fetchOrgs.done =>
-      @main.changeOrg(orgName)
-    # TODO: show spinner
+  org: (orgName) -> @main.changeOrg(orgName)
+  repo: (orgName, repoName) -> @main.changeRepo(orgName, repoName)
