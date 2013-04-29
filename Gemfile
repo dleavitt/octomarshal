@@ -14,6 +14,8 @@ gem "redis"
 gem "redis-namespace-with-multi", require: "redis/namespace"
 gem "redis-rack", "> 1.0"
 
+gem "dalli"
+
 gem "sprockets"
 gem "sprockets-helpers"
 gem "sprockets-sass"

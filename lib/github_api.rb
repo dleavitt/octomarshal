@@ -31,4 +31,14 @@ class GithubAPI
       team.slice(:id, :name, :slug, :permission)
     end
   end
+
+  def create_repo_team(org, repo)
+    res = client.orgs.teams.create(org, {
+      name: repo,
+      repo_names: [repo],
+      permission: "push",
+    })
+
+    res.body.slice(:id, :name, :slug, :permission)
+  end
 end

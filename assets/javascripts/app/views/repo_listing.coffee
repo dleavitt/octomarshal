@@ -4,11 +4,24 @@ class App.Views.RepoListing extends Backbone.View
   template: HBS['app/templates/repo_listing']
 
   events:
-    'click .repo-name': 'repoSelected'
+    'click .team-edit':   'repoSelected'
+    'click .team-create': 'createTeam'
+
+  initialize: ->
+    @listenTo @model, "change:team", @refresh
 
   render: ->
     @$el.html @template @model.toJSON()
     return @
+
+  refresh: ->
+    @render()
+    @$el.replaceWith(@el)
+    @delegateEvents()
+
+  createTeam: (e) ->
+    e.preventDefault()
+    @model.createTeam()
 
   repoSelected: (e) ->
     e.preventDefault()

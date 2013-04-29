@@ -19,6 +19,8 @@ $redis = Redis::Namespace.new(:octomarshal, :redis => Redis.new(
   :logger   => Logger.new(STDOUT)
 ))
 
+$memcached = Dalli::Client.new('localhost:11211')
+
 HandlebarsAssets::Config.template_namespace = 'HBS' if defined? HandlebarsAssets
 
 module Octomarshal
@@ -91,6 +93,16 @@ module Octomarshal
     end
 
     namespace "/api" do
+      helpers do
+        def cache_key
+          session[:user] + "-" + params.values.join("-") + request.path
+        end
+
+        def cache
+          $memcached.fetch(cache_key, 300) { yield }
+        end
+      end
+
       before do
         halt 403, "Not authorized" unless authorized?
       end
@@ -99,20 +111,27 @@ module Octomarshal
       get "/orgs" do
         # TODO: filter by whether user is an owner
         # TODO: return only required attributes
-        json gh.orgs
+        cache { json gh.orgs }
+
       end
 
       get "/orgs/:org/repos" do
-        json gh.repos(params[:org])
+        cache { json gh.repos(params[:org]) }
       end
 
       get "/orgs/:org/users" do
+
         # TODO: allow for manual input of user info, mash this up with that
-        json gh.org_users(params[:org])
+        cache { json gh.org_users(params[:org]) }
       end
 
       get "/orgs/:org/teams" do
         json gh.org_teams(params[:org])
+      end
+
+      # create a repo team
+      post "/orgs/:org/teams" do
+        json gh.create_repo_team(params[:org], params[:slug])
       end
     end
   end

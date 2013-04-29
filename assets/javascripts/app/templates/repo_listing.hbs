@@ -1,7 +1,11 @@
 <div class="panel">
-  <h4><a href="#" class="repo-name">{{name}}</a> <small>{{language}}</small></h4>
+  <h4><a href="{{html_url}}" target="_blank">{{name}}</a> <small>{{language}}</small></h4>
   <p>{{description}}</p>
-  <p>
-    <a href="{{html_url}}" target="_blank">on Github</a>
-  </p>
+
+{{#if team}}
+  <a href="#" class="small button team-edit">Edit Repo Team</a>
+{{else}}
+  <a href="#" class="small button success team-create">Create Repo Team</a>
+{{/if}}
+
 </div>

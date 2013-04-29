@@ -22,18 +22,19 @@ class App.Views.Main extends Backbone.View
       unless @org?.get('login') is orgName
         @org = @orgs.findWhere(login: orgName)
 
-        @listenToOnce @org.repos, "reset", @renderRepos
-        @listenToOnce @org.users, "reset", @renderUsers
+        @fetchUsers = @org.fetchUsers()
+        @fetchRepos = @org.fetchRepos()
 
-        @fetchRepos = @org.repos.fetch(reset: true)
-        # @fetchTeams = @org.teams.fetch(reset: true)
-        @fetchUsers = @org.users.fetch(reset: true)
+        _.bindAll(@)
+
+        @fetchRepos.done @renderRepos
+        @fetchUsers.done @renderUsers
 
   changeRepo: (orgName, repoName) ->
     @changeOrg(orgName)
     @fetchOrgs.done =>
       @fetchRepos.done =>
-        log repoName
+        @renderRepoDetail
 
   renderOrgs: ->
     view = new App.Views.OrgSelector collection: @orgs
@@ -42,15 +43,13 @@ class App.Views.Main extends Backbone.View
   renderRepos: ->
     # TODO: deal with org possibly being changed
     @$reposContainer.html('')
-    @org.repos.forEach (repo) =>
-      view = new App.Views.RepoListing(model: repo)
-      @$reposContainer.append(view.render().el)
+    @repoViews = @org.repos.map (repo) => new App.Views.RepoListing(model: repo)
+    @repoViews.forEach (view) => @$reposContainer.append(view.render().el)
 
   renderUsers: ->
     @$usersContainer.html('')
-    @org.users.forEach (user) =>
-      view = new App.Views.User(model: user)
-      @$usersContainer.append(view.render().el)
+    @userViews = @org.users.map (user) => new App.Views.User(model: user)
+    @userViews.forEach (view) => @$usersContainer.append(view.render().el)
 
   logout: (e) ->
     e.preventDefault()
